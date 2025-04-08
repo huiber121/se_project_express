@@ -4,7 +4,7 @@ const SERVER_ERROR = 500;
 
 const handleValidationError = (err, req, res) => {
   if (err.name === "CastError") {
-    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+    return res.status(BAD_REQUEST).json({ message: err.message });
   }
   if (err.name === "ValidationError") {
     return res.status(BAD_REQUEST).json({ message: err.message });
