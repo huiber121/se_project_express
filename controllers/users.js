@@ -2,6 +2,8 @@
 const User = require("../models/users");
 const handleValidationError = require("../utils/errors");
 
+const NOT_FOUND = 404;
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -13,7 +15,7 @@ const getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).json({ message: "User not found" }); // 404 instead of 200
+        return res.status(NOT_FOUND).json({ message: "User not found" }); // 404 instead of 200
       }
       return res.status(200).json(user);
     })

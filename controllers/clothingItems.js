@@ -24,20 +24,6 @@ const createItem = (req, res) => {
     .catch((err) => handleValidationError(err, req, res));
 };
 
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageURL } = req.body;
-  clothingItem
-    .findByIdAndUpdate(itemId, { $set: { imageURL } })
-    .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = 404;
-      throw err;
-    })
-    .then((item) => res.status(200).send(item))
-    .catch((err) => handleValidationError(err, req, res));
-};
-
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   clothingItem
@@ -87,7 +73,6 @@ module.exports = {
   createItem,
   getItems,
   deleteItem,
-  updateItem,
   likeItem,
   dislikeItem,
 };
