@@ -1,6 +1,6 @@
-//middleware
+// middleware
 const User = require("../models/users");
-const { handleValidationError } = require("../utils/errors");
+const handleValidationError = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -15,7 +15,7 @@ const getUserById = (req, res) => {
       if (!user) {
         return res.status(404).json({ message: "User not found" }); // 404 instead of 200
       }
-      res.status(200).json(user);
+      return res.status(200).json(user);
     })
     .catch((err) => handleValidationError(err, req, res));
 };

@@ -15,4 +15,4 @@ const handleValidationError = (err, req, res) => {
   return res.status(SERVER_ERROR).json({ message: err.message });
 };
 
-export { handleValidationError };
+module.exports = handleValidationError;
