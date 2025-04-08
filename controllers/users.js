@@ -11,7 +11,14 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .then((user) => res.status(200).json(user))
+    .then((user) => {
+      if (!user) {
+        const err = new Error("User not found");
+        err.statusCode = 404;
+        return handleValidationError(err, req, res);
+      }
+      return res.status(200).send(user);
+    })
     .catch((err) => handleValidationError(err, req, res));
 };
 
