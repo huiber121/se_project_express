@@ -15,6 +15,5 @@ const handleValidationError = (err, req, res) => {
   return res.status(SERVER_ERROR).json({ message: err.message });
 };
 
-module.exports = handleValidationError;
-module.exports.NOT_FOUND = NOT_FOUND;
+module.exports = { handleValidationError, NOT_FOUND };
 

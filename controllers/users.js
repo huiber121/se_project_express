@@ -1,6 +1,6 @@
 // middleware
 const User = require("../models/users");
-const handleValidationError = require("../utils/errors");
+const { handleValidationError } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
