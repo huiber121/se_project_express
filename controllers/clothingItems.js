@@ -1,5 +1,9 @@
 const clothingItem = require("../models/clothingItems");
-const { handleValidationError } = require("../utils/errors");
+const {
+  NOT_FOUND,
+  FORBIDDEN,
+  handleValidationError,
+} = require("../utils/errors");
 
 const getItems = (req, res) => {
   clothingItem
@@ -26,16 +30,27 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  clothingItem
-    .findByIdAndDelete(itemId)
-    .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = 404;
-      throw err;
-    })
-    .then((item) => res.status(200).send(item))
-    .catch((err) => handleValidationError(err, req, res));
+  const userId = req.user._id;
+
+  clothingItem.findById(itemId).then((item) => {
+    if (item.owner.toString() !== userId) {
+      return res
+        .status(FORBIDDEN)
+        .send({ message: "You are not authorized to delete this item" });
+    }
+
+    return clothingItem
+      .findByIdAndDelete(itemId)
+      .orFail(() => {
+        const err = new Error("Item not found");
+        err.statusCode = NOT_FOUND;
+        throw err;
+      })
+      .then((deletedItem) => res.status(200).send(deletedItem)) // renamed here
+      .catch((err) => handleValidationError(err, req, res));
+  });
 };
+
 
 const likeItem = (req, res) => {
   clothingItem
@@ -46,7 +61,7 @@ const likeItem = (req, res) => {
     )
     .orFail(() => {
       const err = new Error("Item not found");
-      err.statusCode = 404;
+      err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((item) => res.status(200).json(item))
@@ -62,7 +77,7 @@ const dislikeItem = (req, res) => {
     )
     .orFail(() => {
       const err = new Error("Item not found");
-      err.statusCode = 404;
+      err.statusCode = NOT_FOUND;
       throw err;
     })
     .then((item) => res.status(200).send(item))

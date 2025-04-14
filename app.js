@@ -1,6 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
+const auth = require("./middlewares/auth");
+
+const { createUser, login } = require("./controllers/users");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -13,11 +16,16 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: "5d8b8592978f8bd833ca8133", // paste the _id of the test user created in the previous step
-  };
-  next();
+app.post("/signup", createUser);
+app.post("/signin", login);
+
+app.use(auth);
+app.use((err, req, res, next) => {
+  res
+    .status(err.statusCode || 500)
+    .type("application/json") // force JSON output
+    .json({ message: err.message || "Internal Server Error" });
+  next(err);
 });
 app.use("/", mainRouter);
 
