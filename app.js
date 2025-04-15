@@ -18,8 +18,8 @@ app.use(express.json());
 app.post("/signup", createUser);
 app.post("/signin", login);
 
-// // Protect the rest with auth middleware
-// app.use(auth);
+// Protect the rest with auth middleware
+app.use(auth);
 
 // Main router AFTER auth
 app.use("/", mainRouter);
