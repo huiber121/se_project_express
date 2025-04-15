@@ -24,6 +24,14 @@ app.use(auth);
 // Main router AFTER auth
 app.use("/", mainRouter);
 
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '646f3c4b2a0d1e8f5c7b8e9d', // Mock user ID for testing
+//   };
+
+//   next();
+// });
+
 // Centralized error handler LAST
 app.use((err, req, res, next) => {
   res
