@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken"); // importing jsonwebtoken
 const User = require("../models/users");
 const { JWT_SECRET } = require("../utils/config"); // importing JWT_SECRET from config
 
-const { NOT_FOUND, handleValidationError } = require("../utils/errors");
+const { NOT_FOUND, BAD_REQUEST, handleValidationError } = require("../utils/errors");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id; // Extract user ID from req.user (set by auth middleware)
@@ -15,11 +15,7 @@ const getCurrentUser = (req, res) => {
       }
       return res.json(user);
     })
-    .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Internal Server Error", error: err.message });
-    });
+    .catch((err) => handleValidationError(err, req, res)); // Handle errors
 };
 
 const getUserById = (req, res) => {
@@ -57,7 +53,6 @@ const updateUser = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  console.log("Creating user:", req.body); // Log the request body for debugging
   // Hash the password before saving
   bcrypt
     .hash(password, 10)
@@ -81,6 +76,11 @@ const createUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(BAD_REQUEST).json({ message: "Email and password are required" });
+  }
+
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
