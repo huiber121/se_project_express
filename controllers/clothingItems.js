@@ -29,11 +29,11 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { id } = req.params;
+  const { itemId } = req.params;
   const userId = req.user._id;
 
   clothingItem
-    .findById(id)
+    .findById(itemId)
     .orFail(() => {
       const err = new Error("Item not found");
       err.statusCode = NOT_FOUND;
@@ -45,17 +45,17 @@ const deleteItem = (req, res) => {
         err.statusCode = FORBIDDEN;
         throw err;
       }
-      return clothingItem.findByIdAndDelete(id);
+      return clothingItem.findByIdAndDelete(itemId);
     })
     .then((deletedItem) => res.status(200).json(deletedItem))
     .catch((err) => handleValidationError(err, req, res));
 };
 
 const likeItem = (req, res) => {
-  const { id } = req.params;
+  const itemId = req.params;
   clothingItem
     .findByIdAndUpdate(
-      id,
+      itemId,
       { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
       { new: true }
     )
@@ -69,10 +69,10 @@ const likeItem = (req, res) => {
 };
 
 const dislikeItem = (req, res) => {
-  const { id } = req.params;
+  const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
-      id,
+      itemId,
       { $pull: { likes: req.user._id } }, // remove _id from the array
       { new: true }
     )

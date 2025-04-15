@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
-const auth = require("./middlewares/auth");
 const { createUser, login } = require("./controllers/users");
 
 const app = express();
@@ -17,9 +16,6 @@ app.use(express.json());
 // Public routes FIRST (no auth)
 app.post("/signup", createUser);
 app.post("/signin", login);
-
-// Protect the rest with auth middleware
-app.use(auth);
 
 // Main router AFTER auth
 app.use("/", mainRouter);
