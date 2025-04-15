@@ -17,25 +17,11 @@ mongoose
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "5d8b8592978f8bd833ca8133", // ✅ mock user ID
-  };
-  next();
-});
 app.post("/signup", createUser);
 app.post("/signin", login);
 
 app.use(auth);
 app.use("/", mainRouter);
-
-app.use((err, req, res, next) => {
-  res
-    .status(err.statusCode || 500)
-    .type("application/json") // force JSON output
-    .json({ message: err.message || "Internal Server Error" });
-  next(err);
-});
 
 app.listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);

@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-const { BAD_REQUEST, UNAUTHORIZED } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  UNAUTHORIZED,
+} = require("../utils/errors");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -35,11 +38,10 @@ const userSchema = new mongoose.Schema({
 });
 
 // Static method to find a user by credentials
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = async function (email, password) {
   if (!email || !password) {
-    console.log("Email and password are required");
     const err = new Error("Email and password are required");
-    err.statusCode = BAD_REQUEST; // mark it as 400
+    err.statusCode = BAD_REQUEST; // mark it as 400 
     throw err;
   }
 
@@ -51,13 +53,12 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         err.statusCode = UNAUTHORIZED; // mark it as 401
         throw err;
       }
-
       // Compare the provided password with the stored hash
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
           const err = new Error("Incorrect email or password");
           err.statusCode = UNAUTHORIZED;
-          throw err;
+          throw err; // mark it as 401
         }
         return user; // Return the user if the password matches
       });

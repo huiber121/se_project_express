@@ -2,6 +2,7 @@ const clothingItem = require("../models/clothingItems");
 const {
   NOT_FOUND,
   FORBIDDEN,
+  BAD_REQUEST,
   handleValidationError,
 } = require("../utils/errors");
 
@@ -29,33 +30,41 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { itemId } = req.params;
+  const { id } = req.params;
   const userId = req.user._id;
 
-  clothingItem.findById(itemId).then((item) => {
-    if (item.owner.toString() !== userId) {
-      return res
-        .status(FORBIDDEN)
-        .send({ message: "You are not authorized to delete this item" });
-    }
+  if (!id) {
+    return res.status(BAD_REQUEST).send({ message: "Item ID is required" });
+  }
 
-    return clothingItem
-      .findByIdAndDelete(itemId)
-      .orFail(() => {
-        const err = new Error("Item not found");
-        err.statusCode = NOT_FOUND;
-        throw err;
-      })
-      .then((deletedItem) => res.status(200).send(deletedItem)) // renamed here
-      .catch((err) => handleValidationError(err, req, res));
-  });
+  return clothingItem
+    .findById(id)
+    .then((item) => {
+      if (!item) {
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+
+      // Check if the item belongs to the user
+      if (item.owner.toString() !== userId) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "You are not authorized to delete this item" });
+      }
+
+      // If the user is the owner, delete the item
+      return clothingItem.findByIdAndDelete(id).then((deletedItem) =>
+        res.status(200).send(deletedItem)
+      );
+    })
+    .catch((err) => handleValidationError(err, req, res));
 };
 
 
 const likeItem = (req, res) => {
+  const { id } = req.params;
   clothingItem
     .findByIdAndUpdate(
-      req.params.itemId,
+      id,
       { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
       { new: true }
     )
@@ -69,9 +78,10 @@ const likeItem = (req, res) => {
 };
 
 const dislikeItem = (req, res) => {
+  const { id } = req.params;
   clothingItem
     .findByIdAndUpdate(
-      req.params.itemId,
+      id,
       { $pull: { likes: req.user._id } }, // remove _id from the array
       { new: true }
     )

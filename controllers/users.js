@@ -1,12 +1,9 @@
-const bcrypt = require('bcryptjs'); // importing bcryptjs for password hashing
+const bcrypt = require("bcryptjs"); // importing bcryptjs for password hashing
 const jwt = require("jsonwebtoken"); // importing jsonwebtoken
 const User = require("../models/users");
 const { JWT_SECRET } = require("../utils/config"); // importing JWT_SECRET from config
 
-const {
-  NOT_FOUND,
-  handleValidationError,
-} = require("../utils/errors");
+const { NOT_FOUND, handleValidationError } = require("../utils/errors");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id; // Extract user ID from req.user (set by auth middleware)
@@ -27,6 +24,7 @@ const getCurrentUser = (req, res) => {
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
+
   User.findById(userId)
     .then((user) => {
       if (!user) {
@@ -59,7 +57,7 @@ const updateUser = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-
+  console.log("Creating user:", req.body); // Log the request body for debugging
   // Hash the password before saving
   bcrypt
     .hash(password, 10)
@@ -76,7 +74,9 @@ const createUser = (req, res) => {
       delete userObject.password; // Remove the password hash from the response
       res.status(201).send(userObject);
     })
-    .catch((err) => handleValidationError(err, req, res));
+    .catch(
+      (err) => handleValidationError(err, req, res) // Handle other validation errors
+    );
 };
 
 const login = (req, res) => {
@@ -88,9 +88,7 @@ const login = (req, res) => {
       });
       res.status(200).json({ token });
     })
-    .catch((err) => 
-      console.log("Error in login:", err) ||
-      handleValidationError(err, req, res));
+    .catch((err) => handleValidationError(err, req, res));
 };
 
 module.exports = {

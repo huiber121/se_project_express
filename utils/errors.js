@@ -27,9 +27,19 @@ const handleValidationError = (err, req, res) => {
   if (err.name === "TokenExpiredError") {
     return res.status(UNAUTHORIZED).json({ message: "Token Expired" });
   }
-  if (err.code === 11000) {
+  if(err.statusCode === BAD_REQUEST) {
+    return res.status(BAD_REQUEST).json({ message: err.message });
+  }
+  if (err.name === "MongoServerError" && err.code === 11000) {
+    // Handle duplicate key error (e.g., email already exists)
+    return res.status(CONFLICT).json({ message: "Email already exists" });
+  }
+  if (err.statusCode === 11000) {
     // Handle duplicate email error
     return res.status(CONFLICT).json({ message: "Email already exists" });
+  }
+  if (err.statusCode === FORBIDDEN) {
+    return res.status(FORBIDDEN).json({ message: err.message });
   }
   return res.status(SERVER_ERROR).json({ message: err.message });
 };

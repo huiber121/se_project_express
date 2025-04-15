@@ -14,9 +14,9 @@ module.exports = (req, res, next) => {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     req.user = payload;
-    return next(); // ✅ return next() to satisfy ESLint (consistent-return)
+    return next(); // return next() to satisfy ESLint (consistent-return)
   } catch (err) {
-    return handleValidationError(err, req, res); // ✅ proper error handling
+    return handleValidationError(err, req, res); // proper error handling
   }
 };
 
