@@ -38,13 +38,12 @@ const userSchema = new mongoose.Schema({
 });
 
 // Static method to find a user by credentials
-userSchema.statics.findUserByCredentials = async function (email, password) {
+userSchema.statics.findUserByCredentials = function (email, password) {
   if (!email || !password) {
     const err = new Error("Email and password are required");
     err.statusCode = BAD_REQUEST; // mark it as 400 
     throw err;
   }
-
   return this.findOne({ email })
     .select("+password") // Include the password hash in the result
     .then((user) => {

@@ -52,7 +52,7 @@ const deleteItem = (req, res) => {
 };
 
 const likeItem = (req, res) => {
-  const itemId = req.params;
+  const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
       itemId,
