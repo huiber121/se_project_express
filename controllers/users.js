@@ -11,7 +11,9 @@ const getCurrentUser = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND).json({ message: "User not found" });
+        const err = new Error("User not found");
+        err.statusCode = NOT_FOUND; // Set status code to 404
+        return handleValidationError(err, req, res);
       }
       return res.json(user);
     })

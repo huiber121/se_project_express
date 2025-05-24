@@ -60,7 +60,7 @@ const validateLogin = celebrate({
 
 const validateIdParam = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().length(24).required(),
+    itemId: Joi.string().hex().length(24).required(),
   }),
 });
 
@@ -71,7 +71,7 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-module.exports.validateId = celebrate({
+const validateId = celebrate({
   params: Joi.object().keys({
     id: Joi.string().hex().length(24).required(),
   }),
@@ -82,5 +82,6 @@ module.exports = {
   validateCreateUser,
   validateLogin,
   validateIdParam,
+  validateId,
   validateURL,
 };

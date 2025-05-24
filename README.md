@@ -23,3 +23,6 @@ The **WTWR** back-end project powers the server-side logic for the What to Wear 
 2. Run `npm install`
 3. Create `.env` with Mongo URI and secret key
 4. Start with `npm run dev`
+
+## Domain
+https://www.wtwrToday.jumpingcrab.com
