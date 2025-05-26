@@ -5,6 +5,18 @@ const UNAUTHORIZED = 401;
 const CONFLICT = 409;
 const FORBIDDEN = 403;
 
+const handleError = (err, req, res, next) => {
+  const statusCode = err.statusCode || SERVER_ERROR;
+  const message =
+    statusCode === SERVER_ERROR
+      ? "An error has occurred on the server"
+      : err.message;
+  res.status(statusCode).send({
+    message,
+  });
+  next();
+};
+
 const handleValidationError = (err, req, res) => {
   if (err.name === "CastError") {
     return res.status(BAD_REQUEST).json({ message: err.message });
@@ -27,7 +39,7 @@ const handleValidationError = (err, req, res) => {
   if (err.name === "TokenExpiredError") {
     return res.status(UNAUTHORIZED).json({ message: "Token Expired" });
   }
-  if(err.statusCode === BAD_REQUEST) {
+  if (err.statusCode === BAD_REQUEST) {
     return res.status(BAD_REQUEST).json({ message: err.message });
   }
   if (err.name === "MongoServerError" && err.code === 11000) {
@@ -44,4 +56,13 @@ const handleValidationError = (err, req, res) => {
   return res.status(SERVER_ERROR).json({ message: err.message });
 };
 
-module.exports = { handleValidationError, NOT_FOUND, FORBIDDEN, CONFLICT, BAD_REQUEST, SERVER_ERROR, UNAUTHORIZED };
+module.exports = {
+  handleValidationError,
+  handleError,
+  NOT_FOUND,
+  FORBIDDEN,
+  CONFLICT,
+  BAD_REQUEST,
+  SERVER_ERROR,
+  UNAUTHORIZED,
+};

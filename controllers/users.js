@@ -2,8 +2,13 @@ const bcrypt = require("bcryptjs"); // importing bcryptjs for password hashing
 const jwt = require("jsonwebtoken"); // importing jsonwebtoken
 const User = require("../models/users");
 const { JWT_SECRET } = require("../utils/config"); // importing JWT_SECRET from config
-
-const { NOT_FOUND, BAD_REQUEST, handleValidationError } = require("../utils/errors");
+const {
+  NOT_FOUND,
+  BAD_REQUEST,
+  handleValidationError,
+} = require("../utils/errors");
+const { BadRequestError } = require("../utils/BadRequestError");
+const { ConflictError } = require("../utils/ConflictError");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id; // Extract user ID from req.user (set by auth middleware)
@@ -53,34 +58,32 @@ const updateUser = (req, res) => {
     .catch((err) => handleValidationError(err, req, res)); // Handle validation errors
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
-  // Hash the password before saving
-  bcrypt
+
+  return bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        name,
-        avatar,
-        email,
-        password: hash, // Save the hashed password
-      })
-    )
-    .then((user) => {
-      const userObject = user.toObject();
-      delete userObject.password; // Remove the password hash from the response
-      res.status(201).send(userObject);
-    })
-    .catch(
-      (err) => handleValidationError(err, req, res) // Handle other validation errors
-    );
+    .then((hash) =>  User.create({ name, avatar, email, password: hash }))
+    .then((data) => res.status(201).send(data))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new BadRequestError("Invalid data provided"));
+      }
+      if (err.code === 11000) {
+        next(new ConflictError("Email already exists"));
+      } else {
+        next(err); // Pass other errors to the error handler
+      }
+    });
 };
 
 const login = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).json({ message: "Email and password are required" });
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "Email and password are required" });
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {

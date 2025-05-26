@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,8 +9,8 @@ const {
   validateCreateUser,
   validateLogin,
 } = require("./middlewares/validation");
+const { handleError } = require("./utils/errors");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-require("dotenv").config();
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -46,20 +47,13 @@ app.use(errors());
 
 // Centralized error handler LAST
 app.use((err, req, res, next) => {
-  if (err.name === "ValidationError") {
+  if (handleError(err)) {
     return res
-      .status(400)
-      .json({ message: "Validation error", details: err.message });
+      .status(err.statusCode || 500)
+      .type("application/json")
+      .json({ message: err.message || "Internal Server Error" });
   }
-
-  if (err.name === "JsonWebTokenError") {
-    return res.status(401).json({ message: "Invalid or expired token" });
-  }
-
-  return res
-    .status(err.statusCode || 500)
-    .type("application/json")
-    .json({ message: err.message || "Internal Server Error" });
+  return next(err);
 });
 
 app.listen(PORT, () => {

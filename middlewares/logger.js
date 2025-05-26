@@ -1,5 +1,5 @@
-const winston = require("winston");
 const expressWinston = require("express-winston");
+const winston = require("winston");
 
 // The winston.format function allows us to customize how our logs
 // are formatted. In this case, we are using a built-in timestamp
